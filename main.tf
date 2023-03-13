@@ -368,3 +368,15 @@ resource "aws_iam_instance_profile" "this" {
   #  create_before_destroy = true
   #}
 }
+
+
+resource "aws_volume_attachment" "attach" {
+	for_each = var.volume_attachments
+	device_name = each.value.device_name
+	volume_id   = each.value.volume_id
+  instance_id = try(aws_instance.this[0].id, aws_spot_instance_request.this[0].spot_instance_id)
+
+	# FIXME - force_detach could possibly cause issues because of unproper unmounting of a filesystem
+	# force_detach = true
+	stop_instance_before_detaching = true
+}

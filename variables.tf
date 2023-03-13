@@ -380,3 +380,11 @@ variable "iam_role_tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "volume_attachments" {
+  description = "A map of additional volumes to attach"
+  type = map(object({
+    device_name = string
+    volume_id = string
+  }))
+}
