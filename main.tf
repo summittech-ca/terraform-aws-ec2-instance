@@ -376,7 +376,12 @@ resource "aws_volume_attachment" "attach" {
 	volume_id   = each.value.volume_id
   instance_id = try(aws_instance.this[0].id, aws_spot_instance_request.this[0].spot_instance_id)
 
-	# FIXME - force_detach could possibly cause issues because of unproper unmounting of a filesystem
-	# force_detach = true
+	force_detach = true # [2023-06-08 EB]: I have tried everything and have a very, very hard time
+	# when these instances need to be recreated and almost always end up with half-created instances
+	# where the 2 instances are running, one that had the volume attachment at boot, but not anymore,
+	# and the new one fails boot because the volume is never attached.  Neither instance works, and
+	# the terraform script crashes trying to attach volume to the new instance because it's still on
+	# the old instance.  The system never recovers and requires manual termination of both instances
+	# and manual reapply.  Trying with force_detach = true to see if this helps.
 	stop_instance_before_detaching = true
 }
